@@ -13,7 +13,9 @@ SELECT
 		IN ("Confirmado","Reservado","Reposicao", "Aluno cortesia", "Funcionario Caelum", 
         "Aluno teste"),1,NULL)) + CASE WHEN reservasgenericas.numeroDeReservas IS NULL THEN 0
         ELSE reservasgenericas.numeroDeReservas END AS "Total",
-    instrutor.nome AS "Instrutor",
+    (SELECT instrutor.nome FROM instrutoremaula
+		INNER JOIN usuario AS instrutor ON instrutor.id = instrutoremaula.instrutor_id
+        WHERE instrutoremaula.turma_id = turma.id LIMIT 1) AS "Instrutor",
     COUNT(IF(situacaodematricula.nome = "Confirmado",1,NULL)) AS "Confirmados",
     COUNT(IF(situacaodematricula.nome = "Reservado",1,NULL)) AS "Reservados",
     COUNT(IF(situacaodematricula.nome 
@@ -33,12 +35,10 @@ LEFT JOIN sala ON sala.id = turma.sala_id
 LEFT JOIN unidade ON unidade.id = sala.unidade_id
 LEFT JOIN horario ON horario.id = turma.horario_id
 LEFT JOIN usuario AS responsavel ON responsavel.id = turma.atendente_id
-LEFT JOIN instrutoremaula ON instrutoremaula.turma_id = turma.id
-LEFT JOIN usuario AS instrutor ON instrutor.id = instrutoremaula.instrutor_id
 LEFT JOIN reservasgenericas ON reservasgenericas.id = turma.reservasGenericas_id
 LEFT JOIN matricula ON matricula.turma_id = turma.id
 LEFT JOIN situacaodematricula ON situacaodematricula.id = matricula.situacao_id
 	AND matricula.ativa = 1
-WHERE turma.primeiroDia > "2019-02-01" AND unidade.cidadePadrao = "Sao Paulo"   
+WHERE turma.primeiroDia > "2019-12-10" AND unidade.cidadePadrao = "Sao Paulo"
 GROUP BY turma.id
 ORDER BY turma.primeiroDia, turma.id
